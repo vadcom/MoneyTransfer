@@ -3,14 +3,16 @@ package vadcom.money;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
-import java.util.Date;
+import java.util.concurrent.locks.Lock;
+import java.util.function.Consumer;
 
 public class MoneyTransfer {
-    public static final String NAME_PARAM = "name";
-    public static final String ROOT_PATH = "/vadcom/MoneyTransfers/1.0.0";
-    Store store=new Store();
+    static final String ROOT_PATH = "/vadcom/MoneyTransfers/1.0.0";
+    private static final String NAME_PARAM = "name";
+    private Store store=new Store();
 
-    void createAccount(Context context){
+
+    private void createAccount(Context context){
         try {
             Account account = context.bodyAsClass(Account.class);
             store.addAccount(account);
@@ -33,7 +35,13 @@ public class MoneyTransfer {
     private void deleteAccount(Context context){
         try {
             String name=context.pathParam(NAME_PARAM);
-            store.removeAccount(name);
+            Lock lock=store.getAccount(name).getLock();
+            lock.lock();
+            try {
+                store.removeAccount(name);
+            } finally {
+                lock.unlock();
+            }
             context.json(store.getAccount(name));
         } catch (Exception e) {
             context.status(400);
@@ -45,27 +53,51 @@ public class MoneyTransfer {
         context.json(store.getTransactions());
     }
 
-    void moveMoney(Context context){
+    private void moveMoney(Context context){
         try {
-            Transaction transaction = context.bodyAsClass(Transaction.class);
-            Account source=store.getAccount(transaction.getSourceAccount());
-            Account destination=store.getAccount(transaction.getDestinationAccount());
-            if (source.getAmount()>=transaction.getAmount()) {
-                double money=transaction.getAmount();
-                source.changeAmount(-money);
-                destination.changeAmount(money);
-                store.setAccount(source);
-                store.setAccount(destination);
-                store.addTransaction(transaction);
-                context.status(200);
-            } else {
-                throw new IllegalStateException("insufficient amount on source account");
-            }
+            lockedTransactionOperation(context.bodyAsClass(Transaction.class), transaction-> {
+                Account source = store.getAccount(transaction.getSourceAccount());
+                Account destination = store.getAccount(transaction.getDestinationAccount());
+                if (source.getAmount() >= transaction.getAmount()) {
+                    double money = transaction.getAmount();
+                    source.changeAmount(-money);
+                    destination.changeAmount(money);
+                    store.setAccount(source);
+                    store.setAccount(destination);
+                    store.addTransaction(transaction);
+                    context.status(200);
+                } else {
+                    throw new IllegalStateException("insufficient amount on source account");
+                }
+            });
         } catch (Exception e) {
             context.status(400);
             context.result(e.getMessage());
         }
     }
+
+    private void lockedTransactionOperation(Transaction transaction, Consumer<Transaction> consumer){
+        boolean wait=true;
+        while(wait){
+            Lock A=store.getAccountLock(transaction.getSourceAccount());
+            Lock B=store.getAccountLock(transaction.getDestinationAccount());
+            if(A.tryLock()){
+                if(B.tryLock())
+                {
+                    try{
+                        consumer.accept(transaction);
+                        wait=false;
+                    } finally{
+                        B.unlock();
+                        A.unlock();
+                    }
+                } else{
+                    A.unlock();
+                }
+            }
+        }
+    }
+
 
 
     public static void main(String[] args) {
@@ -79,6 +111,5 @@ public class MoneyTransfer {
 
         app.get(ROOT_PATH+"/transaction", server::listTransaction);
         app.post(ROOT_PATH+"/transaction", server::moveMoney);
-
     }
 }

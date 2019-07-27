@@ -9,9 +9,10 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static vadcom.money.MoneyTransfer.ROOT_PATH;
 
 public class MoneyTransferTest {
-    private String ROOT_API_URL="http://localhost:7000/vadcom/MoneyTransfers/1.0.0";
+    private final static String ROOT_API_URL="http://localhost:7000"+ROOT_PATH;
 
     @Test
     public void addAccountTest() {

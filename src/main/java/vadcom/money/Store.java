@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
 
 public class Store {
     private Map<String,Account> accounts=new ConcurrentHashMap<>();
@@ -14,14 +15,17 @@ public class Store {
         return accounts.values();
     }
 
+    public Lock getAccountLock(String name) {
+        return getAccount(name).getLock();
+    }
+
     public Account getAccount(String name){
         checkAccountPresent(name);
         return accounts.get(name);
     }
 
     public Account removeAccount(String name){
-        checkAccountPresent(name);
-        return accounts.remove(name);
+            return accounts.remove(name);
     }
 
     private void checkAccountPresent(String name) {

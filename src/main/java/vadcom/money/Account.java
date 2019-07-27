@@ -1,15 +1,20 @@
 package vadcom.money;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.Date;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class Account {
     private String name;
     private double amount;
     private Date creationDate;
+    @JsonIgnore
+    private Lock lock=new ReentrantLock();
 
     public Account() {
     }
@@ -50,5 +55,9 @@ public class Account {
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public Lock getLock() {
+        return lock;
     }
 }
