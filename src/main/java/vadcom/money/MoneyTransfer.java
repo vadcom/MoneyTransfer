@@ -9,6 +9,8 @@ import java.util.function.Consumer;
 public class MoneyTransfer {
     static final String ROOT_PATH = "/vadcom/MoneyTransfers/1.0.0";
     private static final String NAME_PARAM = "name";
+    public static final String TRANSACTION_PATH = "/transaction";
+    public static final String ACCOUNT_PATH = "/account";
     private Store store=new Store();
 
 
@@ -42,7 +44,7 @@ public class MoneyTransfer {
             } finally {
                 lock.unlock();
             }
-            context.json(store.getAccount(name));
+            context.status(200);
         } catch (Exception e) {
             context.status(400);
             context.result(e.getMessage());
@@ -104,12 +106,12 @@ public class MoneyTransfer {
         MoneyTransfer server=new MoneyTransfer();
         Javalin app = Javalin.create().start(7000);
         app.get(ROOT_PATH, ctx -> ctx.result("Money transfer service started"));
-        app.get(ROOT_PATH+"/account", server::listAccount);
-        app.get(ROOT_PATH+"/account/:"+NAME_PARAM, server::getAccount);
-        app.delete(ROOT_PATH+"/account/:"+NAME_PARAM, server::deleteAccount);
-        app.post(ROOT_PATH+"/account", server::createAccount);
+        app.get(ROOT_PATH+ ACCOUNT_PATH, server::listAccount);
+        app.get(ROOT_PATH+ACCOUNT_PATH+"/:"+NAME_PARAM, server::getAccount);
+        app.delete(ROOT_PATH+ACCOUNT_PATH+"/:"+NAME_PARAM, server::deleteAccount);
+        app.post(ROOT_PATH+ACCOUNT_PATH, server::createAccount);
 
-        app.get(ROOT_PATH+"/transaction", server::listTransaction);
-        app.post(ROOT_PATH+"/transaction", server::moveMoney);
+        app.get(ROOT_PATH+TRANSACTION_PATH, server::listTransaction);
+        app.post(ROOT_PATH+TRANSACTION_PATH, server::moveMoney);
     }
 }
