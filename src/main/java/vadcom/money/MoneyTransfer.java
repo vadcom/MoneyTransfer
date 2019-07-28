@@ -8,10 +8,14 @@ import java.util.function.Consumer;
 
 public class MoneyTransfer {
     static final String ROOT_PATH = "/vadcom/MoneyTransfers/1.0.0";
+    static final String TRANSACTION_PATH = "/transaction";
+    static final String ACCOUNT_PATH = "/account";
     private static final String NAME_PARAM = "name";
-    public static final String TRANSACTION_PATH = "/transaction";
-    public static final String ACCOUNT_PATH = "/account";
-    private Store store=new Store();
+    private Store store;
+
+    public MoneyTransfer(Store store) {
+        this.store = store;
+    }
 
 
     private void createAccount(Context context){
@@ -103,9 +107,11 @@ public class MoneyTransfer {
 
 
     public static void main(String[] args) {
-        MoneyTransfer server=new MoneyTransfer();
+        MoneyTransfer server=new MoneyTransfer(new MemoryStore());
         Javalin app = Javalin.create().start(7000);
+
         app.get(ROOT_PATH, ctx -> ctx.result("Money transfer service started"));
+
         app.get(ROOT_PATH+ ACCOUNT_PATH, server::listAccount);
         app.get(ROOT_PATH+ACCOUNT_PATH+"/:"+NAME_PARAM, server::getAccount);
         app.delete(ROOT_PATH+ACCOUNT_PATH+"/:"+NAME_PARAM, server::deleteAccount);

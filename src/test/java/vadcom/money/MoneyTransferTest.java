@@ -1,15 +1,10 @@
 package vadcom.money;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.javalin.plugin.openapi.annotations.ContentType;
-import org.junit.Test;
 import io.restassured.RestAssured;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static vadcom.money.MoneyTransfer.*;
 
 public class MoneyTransferTest {
@@ -46,13 +41,24 @@ public class MoneyTransferTest {
                 .given()
                 .when().get(ROOT_API_URL+ACCOUNT_PATH+"/Bank")
                 .then()
-        .extract().body().as(Account.class);
+                .assertThat().statusCode(200)
+                .extract().body().as(Account.class);
 
         assertEquals("Bank", readedAccount.getName());
         assertEquals(1000.0, readedAccount.getAmount(),0.1);
 
         RestAssured.delete(ROOT_API_URL+ACCOUNT_PATH+"/Bank")
                 .then().assertThat().statusCode(200);
+
+        Account[] readedAccounts=RestAssured
+                .given()
+                .when().get(ROOT_API_URL+ACCOUNT_PATH)
+                .then()
+                .assertThat().statusCode(200)
+                .extract().body().as(Account[].class);
+        for (Account account : readedAccounts) {
+            assertNotEquals("Bank",account.getName());
+        }
 
     }
 
