@@ -33,7 +33,9 @@ public class MemoryStore implements Store {
     }
 
     private void checkAccountPresent(String name) {
-        if (!accounts.containsKey(name)) throw new IllegalArgumentException("Account ["+name+"] not found");
+        if (!accounts.containsKey(name)) {
+            throw new IllegalArgumentException("Account ["+name+"] not found");
+        }
     }
 
 
@@ -51,7 +53,9 @@ public class MemoryStore implements Store {
     }
 
     private void checkAccountAbsence(Account account) {
-        if (accounts.containsKey(account.getName())) throw new IllegalArgumentException("Account ["+account.getName()+"] already present");
+        if (accounts.containsKey(account.getName())) {
+            throw new IllegalArgumentException("Account ["+account.getName()+"] already present");
+        }
     }
 
 

@@ -13,6 +13,7 @@ public class TransactionController {
     }
 
     void listTransaction(Context context) {
+        context.status(200);
         context.json(store.getTransactions());
     }
 
@@ -34,6 +35,7 @@ public class TransactionController {
                 }
             });
         } catch (Exception e) {
+            System.err.println(e.getMessage());
             context.status(400);
             context.result(e.getMessage());
         }
