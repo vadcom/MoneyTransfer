@@ -9,30 +9,14 @@ import static vadcom.money.MoneyTransfer.*;
 
 public class MoneyTransferTest {
     private final static String ROOT_API_URL="http://localhost:7000"+ROOT_PATH;
-    public static final String BANK = "{" +
-            "  \"name\": \"Bank\",\n" +
-            "  \"amount\": 1000.0\n" +
-            "}";
-    public static final String VADIM = "{" +
-            "  \"name\": \"Vadim\",\n" +
-            "  \"amount\": 0.0\n" +
-            "}";
-
-    public static final String DMITRY = "{" +
-            "  \"name\": \"Dmitry\",\n" +
-            "  \"amount\": 500.0\n" +
-            "}";
-
-    public static final String MOVE_MONEY = "{\n" +
-            "  \"sourceAccount\": \"Dmitry\",\n" +
-            "  \"destinationAccount\": \"Vadim\",\n" +
-            "  \"amount\": 100\n" +
-            "}";
-
+    private static final String VADIM = "Vadim";
+    private static final String DMITRY = "Dmitry";
 
     @Test
     public void accountTest() {
-        RestAssured.given().body(BANK)
+        Account bank=new Account("Bank",1000);
+
+        RestAssured.given().body(bank)
                 .when()
                 .post(ROOT_API_URL+ACCOUNT_PATH)
                 .then().assertThat().statusCode(200);
@@ -46,6 +30,21 @@ public class MoneyTransferTest {
 
         assertEquals("Bank", readedAccount.getName());
         assertEquals(1000.0, readedAccount.getAmount(),0.1);
+
+
+        RestAssured.given().body(new Account("Bank",500))
+                .when()
+                .put(ROOT_API_URL+ACCOUNT_PATH+"/Bank")
+                .then().assertThat().statusCode(200);
+
+        readedAccount=RestAssured
+                .given()
+                .when().get(ROOT_API_URL+ACCOUNT_PATH+"/Bank")
+                .then()
+                .assertThat().statusCode(200)
+                .extract().body().as(Account.class);
+
+        assertEquals(500.0, readedAccount.getAmount(),0.1);
 
         RestAssured.delete(ROOT_API_URL+ACCOUNT_PATH+"/Bank")
                 .then().assertThat().statusCode(200);
@@ -65,16 +64,16 @@ public class MoneyTransferTest {
     @Test
     public void transferMoneyTest() {
         try {
-            RestAssured.given().body(VADIM)
+            RestAssured.given().body(new Account(VADIM,0))
                     .when()
                     .post(ROOT_API_URL + "/account")
                     .then().assertThat().statusCode(200);
-            RestAssured.given().body(DMITRY)
+            RestAssured.given().body(new Account(DMITRY,500))
                     .when()
                     .post(ROOT_API_URL + "/account")
                     .then().assertThat().statusCode(200);
 
-            RestAssured.given().body(MOVE_MONEY)
+            RestAssured.given().body(new Transaction(DMITRY, VADIM,100))
                     .when()
                     .post(ROOT_API_URL + TRANSACTION_PATH)
                     .then().assertThat().statusCode(200);
@@ -103,8 +102,8 @@ public class MoneyTransferTest {
                     .extract().body().as(Transaction[].class);
             Transaction lastTransaction=transaction[transaction.length-1];
 
-            assertEquals("Vadim",lastTransaction.getDestinationAccount());
-            assertEquals("Dmitry",lastTransaction.getSourceAccount());
+            assertEquals(VADIM,lastTransaction.getDestinationAccount());
+            assertEquals(DMITRY,lastTransaction.getSourceAccount());
             assertEquals(100,lastTransaction.getAmount(),0.1);
 
         } finally {

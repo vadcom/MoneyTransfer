@@ -12,6 +12,12 @@ public class Transaction {
     public Transaction() {
     }
 
+    public Transaction(String sourceAccount, String destinationAccount, double amount) {
+        this.sourceAccount = sourceAccount;
+        this.destinationAccount = destinationAccount;
+        this.amount = amount;
+    }
+
     public int getId() {
         return id;
     }
