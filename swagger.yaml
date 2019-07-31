@@ -1,0 +1,156 @@
+swagger: '2.0'
+info:
+  description: Money transfer
+  version: 1.0.0
+  title: Money transfer
+  contact:
+    email: vadcomys@gmail.com
+
+paths:
+  /account:
+    get:
+      summary: get accounts
+      description: return all accounts in system
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Account'
+    post:
+      summary: adds an account into system
+      operationId: addAccount
+      description: Adds an account to the system
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: account
+          description: account to add
+          schema:
+            $ref: '#/definitions/Account'
+      responses:
+        200:
+          description: account created
+        400:
+          description: invalid input, object invalid
+    put:
+      summary: update an account
+      operationId: editAccount
+      description: Adds an account to the system
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: name
+          type: string
+          required: true
+          description: account's name to edit
+        - in: body
+          name: account
+          description: account to modify
+          required: true
+          schema:
+            $ref: '#/definitions/Account'
+      responses:
+        200:
+          description: account modifyed
+        400:
+          description: invalid input, object invalid
+    delete:
+      summary: remove account
+      description: remove account from system
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: name
+          type: string
+          required: true
+          description: account's name to delete
+      responses:
+        200:
+          description: OK
+        400:
+          description: Account not found
+
+  /transaction:
+    get:
+      summary: list of all transactions
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Transaction'
+    post:
+      summary: money transfer
+      description: move amount beetwen accounts
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: transaction
+          description: transaction to perform
+          schema:
+            $ref: '#/definitions/Transaction'
+      responses:
+        200:
+          description: OK, transaction performed
+        400:
+          description: can't preform transaction by any cause
+
+definitions:
+  Account:
+    type: object
+    required:
+      - name
+      - amount
+    properties:
+      name:
+        type: string
+        example: Bank
+      amount:
+        type: number
+        format: double
+        example: 1000.0
+      data:
+        type: integer
+        example: 12345679
+  Transaction:
+    type: object
+    required:
+      - sourceAccount
+      - destinationAccount
+      - amount
+    properties:
+      id:
+        type: integer
+        example: 1
+      data:
+        type: integer
+        example: 123456789
+      sourceAccount:
+        type: string
+        example: Bank
+      destinationAccount:
+        type: string
+        example: Vadim
+      amount:
+        type: number
+        format: double
+        example: 100.0
+
+basePath: /vadcom/MoneyTransfers/1.0.0
+schemes:
+  - http

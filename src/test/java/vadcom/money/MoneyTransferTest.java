@@ -146,7 +146,7 @@ public class MoneyTransferTest {
                                 .when()
                                 .post(ROOT_API_URL + TRANSACTION_PATH)
                                 .then().assertThat().statusCode(200);
-                        System.out.println("Move 20 from Bank to Vadim");
+//                        System.out.println("Move 20 from Bank to Vadim");
                     } finally {
                         countDownLatch.countDown();
                     }
@@ -158,7 +158,7 @@ public class MoneyTransferTest {
                                 .when()
                                 .post(ROOT_API_URL + TRANSACTION_PATH)
                                 .then().assertThat().statusCode(200);
-                        System.out.println("Move 10 from Vadim to Dmitry");
+//                        System.out.println("Move 10 from Vadim to Dmitry");
                     } finally {
                         countDownLatch.countDown();
                     }
@@ -171,7 +171,7 @@ public class MoneyTransferTest {
                                 .when()
                                 .post(ROOT_API_URL + TRANSACTION_PATH)
                                 .then().assertThat().statusCode(200);
-                        System.out.println("Move 5 from Dmitry to Bank");
+//                        System.out.println("Move 5 from Dmitry to Bank");
                     } finally {
                         countDownLatch.countDown();
                     }
