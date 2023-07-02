@@ -24,9 +24,9 @@ public class MoneyTransfer {
 
         app.get(ROOT_PATH+ ACCOUNT_PATH, accountController::listAccount);
         app.post(ROOT_PATH+ACCOUNT_PATH, accountController::createAccount);
-        app.put(ROOT_PATH+ACCOUNT_PATH+"/:"+NAME_PARAM, accountController::editAccount);
-        app.get(ROOT_PATH+ACCOUNT_PATH+"/:"+NAME_PARAM, accountController::getAccount);
-        app.delete(ROOT_PATH+ACCOUNT_PATH+"/:"+NAME_PARAM, accountController::deleteAccount);
+        app.put(ROOT_PATH+ACCOUNT_PATH+"/{"+NAME_PARAM+"}", accountController::editAccount);
+        app.get(ROOT_PATH+ACCOUNT_PATH+"/{"+NAME_PARAM+"}", accountController::getAccount);
+        app.delete(ROOT_PATH+ACCOUNT_PATH+"/{"+NAME_PARAM+"}", accountController::deleteAccount);
 
         app.get(ROOT_PATH+TRANSACTION_PATH, transactionController::listTransaction);
         app.post(ROOT_PATH+TRANSACTION_PATH, transactionController::moveMoney);

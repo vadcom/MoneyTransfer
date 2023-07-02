@@ -3,6 +3,7 @@ package vadcom.money;
 import io.restassured.RestAssured;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -20,7 +21,7 @@ public class MoneyTransferTest {
 
     @Test
     public void accountTest() {
-        Account bank = new Account(BANK, 1000);
+        Account bank = new Account(BANK, new BigDecimal(1000));
 
         RestAssured.given().body(bank)
                 .when()
@@ -35,10 +36,10 @@ public class MoneyTransferTest {
                 .extract().body().as(Account.class);
 
         assertEquals(BANK, readedAccount.getName());
-        assertEquals(1000.0, readedAccount.getAmount(), 0.1);
+        assertEquals(new BigDecimal(1000), readedAccount.getAmount());
 
 
-        RestAssured.given().body(new Account(BANK, 500))
+        RestAssured.given().body(new Account(BANK, new BigDecimal(500)))
                 .when()
                 .put(ROOT_API_URL + ACCOUNT_PATH + "/Bank")
                 .then().assertThat().statusCode(200);
@@ -50,7 +51,7 @@ public class MoneyTransferTest {
                 .assertThat().statusCode(200)
                 .extract().body().as(Account.class);
 
-        assertEquals(500.0, readedAccount.getAmount(), 0.1);
+        assertEquals(new BigDecimal(500), readedAccount.getAmount());
 
         RestAssured.delete(ROOT_API_URL + ACCOUNT_PATH + "/Bank")
                 .then().assertThat().statusCode(200);
@@ -70,16 +71,16 @@ public class MoneyTransferTest {
     @Test
     public void transferMoneyTest() {
         try {
-            RestAssured.given().body(new Account(VADIM, 0))
+            RestAssured.given().body(new Account(VADIM, new BigDecimal(0)))
                     .when()
                     .post(ROOT_API_URL + "/account")
                     .then().assertThat().statusCode(200);
-            RestAssured.given().body(new Account(DMITRY, 500))
+            RestAssured.given().body(new Account(DMITRY, new BigDecimal(500)))
                     .when()
                     .post(ROOT_API_URL + "/account")
                     .then().assertThat().statusCode(200);
 
-            RestAssured.given().body(new Transaction(DMITRY, VADIM, 100))
+            RestAssured.given().body(new Transaction(DMITRY, VADIM, new BigDecimal(100)))
                     .when()
                     .post(ROOT_API_URL + TRANSACTION_PATH)
                     .then().assertThat().statusCode(200);
@@ -91,7 +92,7 @@ public class MoneyTransferTest {
                     .then()
                     .extract().body().as(Account.class);
 
-            assertEquals(100, vadimAccount.getAmount(), 0.1);
+            assertEquals(new BigDecimal(100), vadimAccount.getAmount());
 
             Account dmitryAccount = RestAssured
                     .given()
@@ -99,7 +100,7 @@ public class MoneyTransferTest {
                     .then()
                     .extract().body().as(Account.class);
 
-            assertEquals(400, dmitryAccount.getAmount(), 0.1);
+            assertEquals(new BigDecimal(400), dmitryAccount.getAmount());
 
             Transaction[] transaction = RestAssured
                     .given()
@@ -110,7 +111,7 @@ public class MoneyTransferTest {
 
             assertEquals(VADIM, lastTransaction.getDestinationAccount());
             assertEquals(DMITRY, lastTransaction.getSourceAccount());
-            assertEquals(100, lastTransaction.getAmount(), 0.1);
+            assertEquals(new BigDecimal(100), lastTransaction.getAmount());
 
         } finally {
             RestAssured.delete(ROOT_API_URL + ACCOUNT_PATH + "/Vadim")
@@ -124,17 +125,17 @@ public class MoneyTransferTest {
     public void multiThreadTest() throws InterruptedException {
         Executor executor = Executors.newFixedThreadPool(20);
         try {
-            final int bankAmount = 1000000;
+            final BigDecimal bankAmount = new BigDecimal(1000000);
             final int iterations = 500;
             RestAssured.given().body(new Account(BANK, bankAmount))
                     .when()
                     .post(ROOT_API_URL + "/account")
                     .then().assertThat().statusCode(200);
-            RestAssured.given().body(new Account(VADIM, 500))
+            RestAssured.given().body(new Account(VADIM, new BigDecimal(500)))
                     .when()
                     .post(ROOT_API_URL + "/account")
                     .then().assertThat().statusCode(200);
-            RestAssured.given().body(new Account(DMITRY, 500))
+            RestAssured.given().body(new Account(DMITRY, new BigDecimal(500)))
                     .when()
                     .post(ROOT_API_URL + "/account")
                     .then().assertThat().statusCode(200);
@@ -142,7 +143,7 @@ public class MoneyTransferTest {
             for (int i = 0; i < iterations; i++) {
                 executor.execute(() -> {
                     try {
-                        RestAssured.given().body(new Transaction(BANK, VADIM, 20))
+                        RestAssured.given().body(new Transaction(BANK, VADIM, new BigDecimal(20)))
                                 .when()
                                 .post(ROOT_API_URL + TRANSACTION_PATH)
                                 .then().assertThat().statusCode(200);
@@ -154,7 +155,7 @@ public class MoneyTransferTest {
 
                 executor.execute(() -> {
                     try {
-                        RestAssured.given().body(new Transaction(VADIM, DMITRY, 10))
+                        RestAssured.given().body(new Transaction(VADIM, DMITRY, new BigDecimal(10)))
                                 .when()
                                 .post(ROOT_API_URL + TRANSACTION_PATH)
                                 .then().assertThat().statusCode(200);
@@ -167,7 +168,7 @@ public class MoneyTransferTest {
                 executor.execute(() -> {
                     try {
 
-                        RestAssured.given().body(new Transaction(DMITRY, BANK, 5))
+                        RestAssured.given().body(new Transaction(DMITRY, BANK, new BigDecimal(5)))
                                 .when()
                                 .post(ROOT_API_URL + TRANSACTION_PATH)
                                 .then().assertThat().statusCode(200);
@@ -187,7 +188,7 @@ public class MoneyTransferTest {
                     .extract().body().as(Account.class);
 
             assertEquals(BANK, readedAccount.getName());
-            assertEquals(bankAmount - 15 * iterations, readedAccount.getAmount(), 0.1);
+            assertEquals(bankAmount.add(new BigDecimal(-15 * iterations) ) , readedAccount.getAmount());
 
         } finally {
             RestAssured.delete(ROOT_API_URL + ACCOUNT_PATH + "/Bank")

@@ -1,18 +1,19 @@
 package vadcom.money;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class Transaction {
     private int id;
     private String sourceAccount;
     private String destinationAccount;
-    private double amount;
+    private BigDecimal amount;
     private Date date;
 
     public Transaction() {
     }
 
-    public Transaction(String sourceAccount, String destinationAccount, double amount) {
+    public Transaction(String sourceAccount, String destinationAccount, BigDecimal amount) {
         this.sourceAccount = sourceAccount;
         this.destinationAccount = destinationAccount;
         this.amount = amount;
@@ -42,11 +43,11 @@ public class Transaction {
         this.destinationAccount = destinationAccount;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

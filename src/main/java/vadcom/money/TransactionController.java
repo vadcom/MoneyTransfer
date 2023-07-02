@@ -2,6 +2,7 @@ package vadcom.money;
 
 import io.javalin.http.Context;
 
+import java.math.BigDecimal;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
 
@@ -22,9 +23,9 @@ public class TransactionController {
             lockedTransactionOperation(context.bodyAsClass(Transaction.class), transaction -> {
                 Account source = store.getAccount(transaction.getSourceAccount());
                 Account destination = store.getAccount(transaction.getDestinationAccount());
-                if (source.getAmount() >= transaction.getAmount()) {
-                    double money = transaction.getAmount();
-                    source.changeAmount(-money);
+                if (source.getAmount().compareTo(transaction.getAmount())!=-1 ) {
+                    BigDecimal money = transaction.getAmount();
+                    source.changeAmount(money.negate());
                     destination.changeAmount(money);
                     store.setAccount(source);
                     store.setAccount(destination);

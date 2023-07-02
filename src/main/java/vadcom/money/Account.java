@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -11,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Account {
     private String name;
-    private double amount;
+    private BigDecimal amount;
     private Date creationDate;
     @JsonIgnore
     private Lock lock=new ReentrantLock();
@@ -19,11 +20,11 @@ public class Account {
     public Account() {
     }
 
-    public Account(String name, double amount) {
+    public Account(String name, BigDecimal amount) {
         this(name,amount,new Date());
     }
 
-    public Account(String name, double amount, Date creationDate) {
+    public Account(String name, BigDecimal amount, Date creationDate) {
         this.name = name;
         this.amount = amount;
         this.creationDate = creationDate;
@@ -37,16 +38,16 @@ public class Account {
         this.name = name;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
-    public void changeAmount(double delta) {
-        this.amount += delta;
+    public void changeAmount(BigDecimal delta) {
+        this.amount=this.amount.add(delta);
     }
 
     public Date getCreationDate() {
