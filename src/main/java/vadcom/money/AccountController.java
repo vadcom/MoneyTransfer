@@ -36,8 +36,8 @@ class AccountController {
     void editAccount(Context context) {
         final Account newAccount = context.bodyAsClass(Account.class);
         try {
-            lockedAccountOperation(context.pathParam(NAME_PARAM), name->{
-                Account storedAccount=store.removeAccount(name);
+            lockedAccountOperation(context.pathParam(NAME_PARAM), name -> {
+                Account storedAccount = store.removeAccount(name);
                 storedAccount.setName(newAccount.getName());
                 storedAccount.setAmount(newAccount.getAmount());
                 store.setAccount(storedAccount);

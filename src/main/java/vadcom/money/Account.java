@@ -1,8 +1,6 @@
 package vadcom.money;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -15,13 +13,10 @@ public class Account {
     private BigDecimal amount;
     private Date creationDate;
     @JsonIgnore
-    private Lock lock=new ReentrantLock();
-
-    public Account() {
-    }
+    final private Lock lock = new ReentrantLock();
 
     public Account(String name, BigDecimal amount) {
-        this(name,amount,new Date());
+        this(name, amount, new Date());
     }
 
     public Account(String name, BigDecimal amount, Date creationDate) {
@@ -47,7 +42,7 @@ public class Account {
     }
 
     public void changeAmount(BigDecimal delta) {
-        this.amount=this.amount.add(delta);
+        this.amount = this.amount.add(delta);
     }
 
     public Date getCreationDate() {

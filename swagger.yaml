@@ -59,7 +59,7 @@ paths:
             $ref: '#/definitions/Account'
       responses:
         200:
-          description: account modifyed
+          description: account modified
         400:
           description: invalid input, object invalid
     delete:
@@ -93,7 +93,7 @@ paths:
               $ref: '#/definitions/Transaction'
     post:
       summary: money transfer
-      description: move amount beetwen accounts
+      description: move amount between accounts
       consumes:
         - application/json
       produces:

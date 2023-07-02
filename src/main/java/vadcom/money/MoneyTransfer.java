@@ -9,27 +9,27 @@ public class MoneyTransfer {
     static final String TRANSACTION_PATH = "/transaction";
     static final String ACCOUNT_PATH = "/account";
 
-    private AccountController accountController;
-    private TransactionController transactionController;
+    private final AccountController accountController;
+    private final TransactionController transactionController;
 
 
     private MoneyTransfer(Store store) {
-        this.accountController=new AccountController(store);
-        this.transactionController=new TransactionController(store);
+        this.accountController = new AccountController(store);
+        this.transactionController = new TransactionController(store);
     }
 
 
     private void start() {
-        Javalin app = Javalin.create().start(7000);
-
-        app.get(ROOT_PATH+ ACCOUNT_PATH, accountController::listAccount);
-        app.post(ROOT_PATH+ACCOUNT_PATH, accountController::createAccount);
-        app.put(ROOT_PATH+ACCOUNT_PATH+"/{"+NAME_PARAM+"}", accountController::editAccount);
-        app.get(ROOT_PATH+ACCOUNT_PATH+"/{"+NAME_PARAM+"}", accountController::getAccount);
-        app.delete(ROOT_PATH+ACCOUNT_PATH+"/{"+NAME_PARAM+"}", accountController::deleteAccount);
-
-        app.get(ROOT_PATH+TRANSACTION_PATH, transactionController::listTransaction);
-        app.post(ROOT_PATH+TRANSACTION_PATH, transactionController::moveMoney);
+        try (Javalin javalin = Javalin.create()) {
+            Javalin app = javalin.start(7000);
+            app.get(ROOT_PATH + ACCOUNT_PATH, accountController::listAccount);
+            app.post(ROOT_PATH + ACCOUNT_PATH, accountController::createAccount);
+            app.put(ROOT_PATH + ACCOUNT_PATH + "/{" + NAME_PARAM + "}", accountController::editAccount);
+            app.get(ROOT_PATH + ACCOUNT_PATH + "/{" + NAME_PARAM + "}", accountController::getAccount);
+            app.delete(ROOT_PATH + ACCOUNT_PATH + "/{" + NAME_PARAM + "}", accountController::deleteAccount);
+            app.get(ROOT_PATH + TRANSACTION_PATH, transactionController::listTransaction);
+            app.post(ROOT_PATH + TRANSACTION_PATH, transactionController::moveMoney);
+        }
     }
 
     public static void main(String[] args) {
